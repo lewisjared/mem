@@ -44,6 +44,9 @@ void setHeader(mem_head_t* head, size_t size);
 void linkedListAddTail(mem_head_t* obj);
 void linkedListRemObj(mem_head_t* obj);
 void printBlock(mem_head_t* obj);
+#ifdef MEM_BACKTRACE
+void printBT(mem_head_t* obj);
+#endif
 
 
 void* mem_malloc(size_t size)
@@ -137,18 +140,33 @@ void mem_printStats()
 	printf("**********************************************\n");
 	printf("Total alloc calls:\t\t%u\n", numAlloc);
 	printf("Total allocated:\t\t%u bytes\n", totalAlloc);
-	printf("Currently Allocated: %u, %u bytes\n", numCurrentlyAlloc, currentAlloc);
+	printf("Currently Allocated: %u, %u bytes\n\n", numCurrentlyAlloc, currentAlloc);
+
+	mem_head_t* current = first;
+
+	while(current)
+	{
+		printBlock(current);
+		current = current->next;
+	}
 }
 
 void printBlock(mem_head_t* obj)
 {
 	printf("Block ID: %u\n", obj->count);
+	printf("\tBlock Size: %u\n",obj->len);
+
+#ifdef MEM_BACKTRACE
+	printBT(obj);
+#endif
 }
 
+#ifdef MEM_BACKTRACE
 void printBT( mem_head_t* obj)
 {
 	if (obj)
 	{
+		printf("Backtrace:");
 		char** strings;
 		strings = backtrace_symbols(obj->backtrace, obj->backtraceCount);
 
@@ -157,6 +175,7 @@ void printBT( mem_head_t* obj)
 			printf("%s\n", strings[i]);
 	}
 }
+#endif
 
 void linkedListAddTail(mem_head_t* obj)
 {
