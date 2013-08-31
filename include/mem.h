@@ -14,6 +14,17 @@
 extern "C" {
 #endif
 
+/*
+ * If MEM_BACKTRACE is defined, the backtrace of each allocation is recorded.
+ * The backtrace will be printed for unfreed blocks
+ */
+#define MEM_BACKTRACE
+
+#ifdef MEM_BACKTRACE
+#	define MEM_BACKTRACE_SIZE 10
+#endif
+
+
 void* mem_malloc(size_t size);
 void* mem_calloc(size_t num, size_t size);
 void* mem_realloc(void* ptr, size_t size);

@@ -10,6 +10,10 @@
 
 #include <stdio.h>
 
+#ifdef MEM_BACKTRACE
+#include "execinfo.h"
+#endif
+
 
 typedef struct mem_head_t {
 	int tag;
@@ -18,6 +22,10 @@ typedef struct mem_head_t {
 	size_t len;
 	unsigned int count;
 	void* data;
+#ifdef MEM_BACKTRACE
+	void* backtrace[MEM_BACKTRACE_SIZE];
+	size_t backtraceCount;
+#endif
 } mem_head_t;
 
 typedef struct mem_tail_t {
@@ -35,6 +43,7 @@ static size_t currentAlloc = 0;
 void setHeader(mem_head_t* head, size_t size);
 void linkedListAddTail(mem_head_t* obj);
 void linkedListRemObj(mem_head_t* obj);
+void printBlock(mem_head_t* obj);
 
 
 void* mem_malloc(size_t size)
@@ -131,6 +140,24 @@ void mem_printStats()
 	printf("Currently Allocated: %u, %u bytes\n", numCurrentlyAlloc, currentAlloc);
 }
 
+void printBlock(mem_head_t* obj)
+{
+	printf("Block ID: %u\n", obj->count);
+}
+
+void printBT( mem_head_t* obj)
+{
+	if (obj)
+	{
+		char** strings;
+		strings = backtrace_symbols(obj->backtrace, obj->backtraceCount);
+
+		int i;
+		for (i = 0; i < obj->backtraceCount; i++)
+			printf("%s\n", strings[i]);
+	}
+}
+
 void linkedListAddTail(mem_head_t* obj)
 {
 	obj->next = NULL;
@@ -159,4 +186,8 @@ void setHeader(mem_head_t* head, size_t size)
 	head->count = numAlloc++;
 
 	linkedListAddTail(head);
+
+#ifdef MEM_BACKTRACE
+	head->backtraceCount = backtrace(head->backtrace, MEM_BACKTRACE_SIZE);
+#endif
 }
