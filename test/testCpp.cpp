@@ -21,8 +21,11 @@ int main ()
 	free(dat);
 
 	TestClass* cls = new TestClass();
-	delete cls;
 
 	char* str = new char[10];
+	mem_printStats();
 	delete[] str;
+	mem_printStats();
+	delete cls;
+	mem_printStats();
 }

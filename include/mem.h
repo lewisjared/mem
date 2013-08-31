@@ -19,6 +19,8 @@ void* mem_calloc(size_t num, size_t size);
 void* mem_realloc(void* ptr, size_t size);
 void mem_free(void* ptr);
 
+void mem_printStats();
+
 /**
  * Override the new, delete and delete[] if c++
  */
